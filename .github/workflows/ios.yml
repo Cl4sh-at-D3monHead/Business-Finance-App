@@ -1,40 +1,39 @@
-name: iOS starter workflow
+name: Build macOS App
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
-    name: Build and Test on iPhone Simulator
+    name: Compile Native Mac App
     runs-on: macos-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Force Expose and Share Xcode Schemes
+      - name: Recreate Schemes
         run: |
           ruby -e "
           require 'xcodeproj'
-          project_path = 'Ledger.xcodeproj'
-          project = Xcodeproj::Project.open(project_path)
+          project = Xcodeproj::Project.open('Ledger.xcodeproj')
           project.recreate_user_schemes
           project.save
-          target_name = project.targets.first.name
-          File.open(ENV['GITHUB_ENV'], 'a') { |f| f.puts \"DETECTED_SCHEME=\#{target_name}\" }
-          puts \"Successfully uncovered scheme: \#{target_name}\"
           "
 
-      - name: Build and Test on Simulator
+      - name: Build macOS App Binary
         run: |
-          xcodebuild test \
+          xcodebuild archive \
             -project Ledger.xcodeproj \
-            -scheme "${{ env.DETECTED_SCHEME }}" \
-            -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+            -scheme "Ledger" \
+            -configuration Release \
+            -archivePath ./build/Ledger.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            PROVISIONING_PROFILE=""
+            CODE_SIGNING_REQUIRED=NO
+
+      - name: Upload Mac App Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ledger-Mac-App
+          path: ./build/Ledger.xcarchive/Products/Applications/
