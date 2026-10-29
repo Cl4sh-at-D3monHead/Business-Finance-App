@@ -3,17 +3,19 @@ name: Build macOS App
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
-    name: Compile Native Mac App
+    name: Compile Standalone macOS Application
     runs-on: macos-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Recreate Schemes
+      - name: Force Recreate Project Schemes
         run: |
           ruby -e "
           require 'xcodeproj'
@@ -22,18 +24,21 @@ jobs:
           project.save
           "
 
-      - name: Build macOS App Binary
+      - name: Package Mac App Binary
         run: |
           xcodebuild archive \
             -project Ledger.xcodeproj \
             -scheme "Ledger" \
             -configuration Release \
             -archivePath ./build/Ledger.xcarchive \
+            -destination "generic/platform=macOS" \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            PROVISIONING_PROFILE=""
 
-      - name: Upload Mac App Artifact
+      - name: Save Compiled Desktop App Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Ledger-Mac-App
+          name: Ledger-Mac-Desktop-App
           path: ./build/Ledger.xcarchive/Products/Applications/
