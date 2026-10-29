@@ -1,0 +1,30 @@
+name: iOS starter workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build and Test default scheme using any available iPhone simulator
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Default Scheme
+        run: |
+          scheme_list=$(xcodebuild -list -json | tr -d "\n")
+          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['schemes'][0]")
+          echo "default_scheme=$default" >> $GITHUB_ENV
+          echo "Using default scheme: $default"
+
+      - name: Build and Test on Simulator
+        run: |
+          xcodebuild test \
+            -project Ledger.xcodeproj \
+            -scheme "${{ env.default_scheme }}" \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest'
