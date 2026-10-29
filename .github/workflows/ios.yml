@@ -15,9 +15,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Force Xcode Build Target
+      - name: Force Expose and Share Xcode Schemes
+        run: |
+          # Use Ruby and Xcodeproj to forcefully find your target name and mark it as shared
+          ruby -e "
+          require 'xcodeproj'
+          project_path = 'Ledger.xcodeproj'
+          project = Xcodeproj::Project.open(project_path)
+          
+          # Force save share schemes locally in the CI runner workspace
+          project.recreate_user_schemes
+          project.save
+          
+          # Read out found targets to help map the correct scheme
+          target_name = project.targets.first.name
+          File.open(ENV['GITHUB_ENV'], 'a') { |f| f.puts \"DETECTED_SCHEME=\#{target_name}\" }
+          puts \"Successfully uncovered scheme: \#{target_name}\"
+          "
+
+      - name: Build and Test on Simulator
         run: |
           xcodebuild test \
             -project Ledger.xcodeproj \
-            -alltargets \
+            -scheme "${{ env.DETECTED_SCHEME }}" \
             -destination "platform=iOS Simulator,name=iPhone 16,OS=latest"
