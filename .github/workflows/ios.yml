@@ -17,17 +17,12 @@ jobs:
 
       - name: Force Expose and Share Xcode Schemes
         run: |
-          # Use Ruby and Xcodeproj to forcefully find your target name and mark it as shared
           ruby -e "
           require 'xcodeproj'
           project_path = 'Ledger.xcodeproj'
           project = Xcodeproj::Project.open(project_path)
-          
-          # Force save share schemes locally in the CI runner workspace
           project.recreate_user_schemes
           project.save
-          
-          # Read out found targets to help map the correct scheme
           target_name = project.targets.first.name
           File.open(ENV['GITHUB_ENV'], 'a') { |f| f.puts \"DETECTED_SCHEME=\#{target_name}\" }
           puts \"Successfully uncovered scheme: \#{target_name}\"
@@ -38,4 +33,8 @@ jobs:
           xcodebuild test \
             -project Ledger.xcodeproj \
             -scheme "${{ env.DETECTED_SCHEME }}" \
-            -destination "platform=iOS Simulator,name=iPhone 16,OS=latest"
+            -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            PROVISIONING_PROFILE=""
