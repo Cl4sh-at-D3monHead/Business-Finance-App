@@ -19,5 +19,7 @@ jobs:
         run: |
           xcodebuild test \
             -project Ledger.xcodeproj \
-            -scheme "Ledger" \
-            -destination "platform=iOS Simulator,name=iPhone 16,OS=latest"
+            -scheme Ledger \
+            -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+            -allowProvisioningUpdates \
+            -clonedSourcePackagesDirPath AppPackages
