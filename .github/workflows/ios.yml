@@ -15,11 +15,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Auto-Generate Shared Schemes
+        run: |
+          # Forces Xcode to look at the project and generate missing shared schemes
+          xcodebuild -list -project Ledger.xcodeproj
+
       - name: Build and Test on Simulator
         run: |
           xcodebuild test \
             -project Ledger.xcodeproj \
-            -scheme Ledger \
-            -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
-            -allowProvisioningUpdates \
-            -clonedSourcePackagesDirPath AppPackages
+            -scheme "Ledger" \
+            -destination "platform=iOS Simulator,name=iPhone 16,OS=latest"
