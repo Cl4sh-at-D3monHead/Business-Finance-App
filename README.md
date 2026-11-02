@@ -15,14 +15,14 @@ Step 2: Configure Executable Permissions
 
 1. Open your Mac's Terminal app (Press Cmd + Space, type Terminal, and hit Enter).
 2. Copy and paste this exact command into the Terminal window to make the app executable, then press Enter:bash
-chmod +x /Users/jojo/Downloads/Ledger.app/Contents/MacOS/Ledger
+chmod +x /Users/Yourname/Downloads/Ledger.app/Contents/MacOS/Ledger
 Use code with caution.
 
 Step 3: Clear the Gatekeeper Internet Quarantine Flag
 
 1. Copy and paste this administrative clearance command into your Terminal window and press Enter:bash
-sudo xattr -cr /Users/jojo/Downloads/Ledger.app
-Use code with caution.
+sudo xattr -cr /Users/Yourname/Downloads/Ledger.app
+
 2. Terminal will ask for your Mac system Password. Type your normal laptop login password and press Enter.
 (Note: The terminal screen will remain completely blank as you type your password for security. Type it carefully and hit Enter).
 
@@ -30,7 +30,7 @@ Step 4: Clear the App Damage Warning Flag (If Needed)
 
 If your Mac throws a secondary alert stating that the app "is damaged and cannot be opened," copy, paste, and run this final line to clear the internet archive block:
 bash
-sudo xattr -rd com.apple.quarantine /Users/jojo/Downloads/Ledger.app
+sudo xattr -rd com.apple.quarantine /Users/Yourname/Downloads/Ledger.app
 
 Step 5: Launch the App!
 
